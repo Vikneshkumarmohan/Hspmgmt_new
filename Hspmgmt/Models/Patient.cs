@@ -18,7 +18,8 @@ namespace Hspmgmt.Models
             public long PhoneNo { get; set; }
             public string Address { get; set; }
             public int DocId { get; set; }
-            public char IsDeleted { get; set; }
+            
+           public char IsDeleted { get; set; }
         }
 
     }

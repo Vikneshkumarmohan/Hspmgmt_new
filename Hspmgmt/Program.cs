@@ -41,21 +41,6 @@ namespace Hspmgmt
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-        .AddCookie(options =>
-        {
-            options.LoginPath = "/Account/Login";
-            options.AccessDeniedPath = "/Account/AccessDenied";
-        });
-
-            // Add authorization
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy("RequireAdminRole", policy =>
-                    policy.RequireRole("Admin"));
-            });
-
-
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
@@ -93,24 +78,42 @@ namespace Hspmgmt
 
             app.UseAuthorization();
 
+            // Inside the Configure method of Startup.cs
+
+            // Inside the Configure method of Startup.cs
+
             app.UseEndpoints(endpoints =>
             {
+                // Map the Index action of the PatientController
                 endpoints.MapControllerRoute(
-                name: "privacy",
-                pattern: "privacy",
-                defaults: new { controller = "Home", action = "Privacy" });
+                    name: "patientIndex",
+                    pattern: "patient",
+                    defaults: new { controller = "Patient", action = "Index" });
 
+                // Map the Create action of the PatientController
+                endpoints.MapControllerRoute(
+                    name: "patientCreate",
+                    pattern: "patient/create",
+                    defaults: new { controller = "Patient", action = "Create" });
 
+                // Map the Delete action of the PatientController
+                endpoints.MapControllerRoute(
+                    name: "patientDelete",
+                    pattern: "patient/delete/{id?}",
+                    defaults: new { controller = "Patient", action = "Delete" });
+
+                // Map the Update action of the HomeController (if required)
+                endpoints.MapControllerRoute(
+                    name: "patientEdit",
+                    pattern: "patient/edit/{id?}",
+                    defaults: new { controller = "Patient", action = "Edit" });
+
+                // Map the default route for PatientController
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Patient}/{action=Index}/{id?}");
-
-                endpoints.MapControllerRoute(
-                   name: "home",
-                   pattern: "home", // URL path to map to the HomePage view
-                   defaults: new { controller = "Patient", action = "HomePage" } // Controller and action method
-                       );
             });
+
         }
     }
 }
