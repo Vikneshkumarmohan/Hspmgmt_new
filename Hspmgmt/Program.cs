@@ -13,12 +13,23 @@ using System.Threading.Tasks;
 using Hspmgmt;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Authentication.Cookies;
-C: \Users\nithya.s.rajkumar\source\repos\Hspmgmt\Hspmgmt.sln
+
 
 namespace Hspmgmt
 {
     public class Startup
     {
+        public static void Main(string[] args)
+        {
+            CreateHostBuilder(args).Build().Run();
+        }
+
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>();
+                });
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
