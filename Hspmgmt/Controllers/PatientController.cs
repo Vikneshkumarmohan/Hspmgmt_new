@@ -11,11 +11,12 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Hspmgmt.Controllers
 {
-    
+
     public class PatientController : Controller
     {
         private readonly ApplicationDbContext _context;
 
+        //constructor
         public PatientController(ApplicationDbContext context)
         {
             _context = context;
@@ -57,7 +58,6 @@ namespace Hspmgmt.Controllers
 
         /// GET: Patient/Edit/5
         // GET: Patient/Edit/5
-        // GET: Patient/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -75,8 +75,8 @@ namespace Hspmgmt.Controllers
             var doctors = await _context.Doctors.ToListAsync();
 
             // Create a SelectList using the list of doctors
-            // Assuming Doctor model has properties DocId and FirstName
-            ViewBag.DoctorId = new SelectList(doctors, "DocId", "FirstName", patient.DocId);
+            // Assuming Doctor model has properties Id and Name
+            ViewBag.DoctorId = new SelectList(doctors, "Id", "Name", patient.DocId);
 
             return View(patient);
         }
@@ -95,8 +95,8 @@ namespace Hspmgmt.Controllers
             var doctors = await _context.Doctors.ToListAsync();
 
             // Create a SelectList using the list of doctors
-            // Assuming Doctor model has properties DocId and FirstName
-            ViewBag.DoctorId = new SelectList(doctors, "DocId", "FirstName", patient.DocId);
+            // Assuming Doctor model has properties Id and Name
+            ViewBag.DoctorId = new SelectList(doctors, "Id", "Name", patient.DocId);
 
             if (ModelState.IsValid)
             {
@@ -120,7 +120,6 @@ namespace Hspmgmt.Controllers
             }
             return View(patient);
         }
-ss
 
         // POST: Patient/Delete/5
         [HttpPost, ActionName("Delete")]
@@ -137,5 +136,78 @@ ss
         {
             return _context.Patients.Any(e => e.Id == id);
         }
+        // API method to create a new patient
+        [AllowAnonymous] // Allow anonymous access to this API
+        [HttpPost]
+        [Route("api/patient")]
+        public async Task<IActionResult> CreatePatient([FromBody] Patient patient)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            _context.Patients.Add(patient);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetPatient", new { id = patient.Id }, patient);
+
+        }
+
+        // API method to update an existing patient
+        [AllowAnonymous] // Allow anonymous access to this API
+        [HttpPut]
+        [Route("api/patient/{id}")]
+        public async Task<IActionResult> UpdatePatient(int id, [FromBody] Patient patient)
+        {
+            if (id != patient.Id)
+            {
+                return BadRequest();
+            }
+
+            _context.Entry(patient).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!PatientExistsInDatabase(id)) // Renamed the method to avoid conflicts
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+
+        // API method to delete a patient
+        [AllowAnonymous] // Allow anonymous access to this API
+        [HttpDelete]
+        [Route("api/patient/{id}")]
+        public async Task<IActionResult> DeletePatient(int id)
+        {
+            var patient = await _context.Patients.FindAsync(id);
+            if (patient == null)
+            {
+                return NotFound();
+            }
+
+            _context.Patients.Remove(patient);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        private bool PatientExistsInDatabase(int id) // Renamed the method to avoid conflicts
+        {
+            return _context.Patients.Any(e => e.Id == id);
+        }
+
     }
 }
